@@ -1,0 +1,150 @@
+---
+### geoschem_config.yml: GEOS-Chem Runtime configuration options.
+### Customized for GCHP aerosol-only simulations.
+###
+### Derived from geoschem_config.yml.fullchem (GCHP) by applying the
+### fullchem -> aerosol science delta taken from the GCClassic
+### geoschem_config.yml.aerosol template, while preserving GCHP
+### infrastructure (chem_inputs_dir, transport: activate, GCHP timesteps).
+###
+### NOTE: Add quotes around nitrogen oxide ('NO'), because YAML
+### parsers will confuse this with a negative "no" value.
+
+#============================================================================
+# Simulation settings
+#============================================================================
+simulation:
+  name: ${RUNDIR_SIM_NAME}
+  met_field: ${RUNDIR_MET}
+  chem_inputs_dir: ./ChemDir/
+  species_database_file: ./species_database.yml
+  species_metadata_output_file: OutputDir/geoschem_species_metadata.yml
+  verbose:
+    activate: false
+    on_cores: root       # Allowed values: root all
+
+#============================================================================
+# Timesteps settings
+#
+# These timesteps are determined in setCommonRunSettings.sh since they are
+# resolution-dependent for GCHP
+#============================================================================
+timesteps:
+  transport_timestep_in_s: ${RUNDIR_TRANSPORT_TS}
+  chemistry_timestep_in_s: ${RUNDIR_CHEMISTRY_TS}
+  radiation_timestep_in_s: 10800
+
+#============================================================================
+# Settings for GEOS-Chem operations
+#============================================================================
+operations:
+
+  # Gates the aerosol chemistry driver (sulfate_mod, carbon_mod).  Must be
+  # true.  KPP is bypassed at runtime via Input_Opt%ITS_AN_AEROSOL_SIM, so
+  # the fullchem KPP solver options (linear_chemistry_aloft, active_strat_H2O,
+  # gamma_HO2, autoreduce_solver) are omitted here.
+  chemistry:
+    activate: true
+
+  convection:
+    activate: true
+
+  # CO2_effect block omitted (fullchem template only; not GCHP-specific)
+  dry_deposition:
+    activate: true
+    diag_alt_above_sfc_in_m: 10
+
+  pbl_mixing:
+     activate: true
+     use_non_local_pbl: ${RUNDIR_USE_NLPBL}
+
+  # Cloud-J is not called in aerosol-only simulations, so the cloud-j and
+  # photolyze_nitrate_aerosol blocks are omitted.  overhead_O3 is still read,
+  # so this section must be retained.  O3 is not an advected species here,
+  # hence use_online_O3_from_model is hardcoded false.
+  photolysis:
+    overhead_O3:
+      use_online_O3_from_model: false
+      use_column_O3_from_met: true
+      use_TOMS_SBUV_O3: false
+
+  # Retained only to set the AOD diagnostic wavelength.  RRTMG itself can
+  # only be called from a fullchem simulation.
+  rrtmg_rad_transfer_model:
+    aod_wavelengths_in_nm:
+      - 550
+
+  # transport: activate is GCHP infrastructure and must be kept.  The
+  # GCClassic gcclassic_tpcore block is deliberately NOT carried over --
+  # GCHP advection is handled by FV3 under MAPL.
+  transport:
+    activate: true
+    transported_species:
+      - BCPI
+      - BCPO
+      - DMS
+      - DSTbin1
+      - DSTbin2
+      - DSTbin3
+      - DSTbin4
+      - DSTbin5
+      - DSTbin6
+      - DSTbin7
+      - H2O2
+      - MSA
+      - NH3
+      - NH4
+      - NIT
+      - NITs
+      - OCPI
+      - OCPO
+      - pFe
+      - SALA
+      - SALAAL
+      - SALACL
+      - SALC
+      - SALCAL
+      - SALCCL
+      - SO2
+      - SO4
+      - SO4s
+      - SOAP
+      - SOAS
+
+  wet_deposition:
+    activate: true
+
+#============================================================================
+# Settings for GEOS-Chem aerosols
+#
+# Omitted relative to fullchem:
+#   complex_SOA  - requires TSOA/ASOA/POA/OPOA species (simple SOA used here:
+#                  SOAP + SOAS)
+#   stratosphere - PSC/NAT heterogeneous chemistry requires UCX species
+#   dust: acid_uptake_on_dust      - requires dust alkalinity tracers
+#   sea_salt: marine_organic_aerosols - requires MOPO/MOPI
+#============================================================================
+aerosols:
+
+  optics:
+    input_dir: ${RUNDIR_DATA_ROOT}/CHEM_INPUTS/Aerosol_Optics/v2025-03/
+
+  carbon:
+    activate: true
+    brown_carbon: false
+    enhance_black_carbon_absorption:
+      activate: true
+      hydrophilic: 1.5
+      hydrophobic: 1.0
+
+  dust:
+    activate: true
+
+  sea_salt:
+    activate: true
+    SALA_radius_bin_in_um: [0.01, 0.5]
+    SALC_radius_bin_in_um: [0.5,  8.0]
+
+  sulfate:
+    activate: true
+    metal_cat_SO2_oxidation: true    # uses pFe, which is advected here
