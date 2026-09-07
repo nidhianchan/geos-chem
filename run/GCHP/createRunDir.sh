@@ -105,6 +105,7 @@ printf "   1. Full chemistry\n"
 printf "   2. TransportTracers\n"
 printf "   3. Carbon\n"
 printf "   4. Tagged O3\n"
+printf "   5. Aerosols only\n"
 
 valid_sim=0
 while [ "${valid_sim}" -eq 0 ]; do
@@ -118,6 +119,8 @@ while [ "${valid_sim}" -eq 0 ]; do
 	sim_name=carbon
     elif [[ ${sim_num} = "4" ]]; then
 	sim_name=tagO3
+    elif [[ ${sim_num} = "5" ]]; then
+	sim_name=aerosol
     else
         valid_sim=0
 	printf "Invalid simulation option. Try again.\n"
@@ -703,6 +706,11 @@ elif [[ "x${sim_name}" == "xtagO3" ]]; then
     start_date='20190701'
     restart_dir='GC_14.7.0'
     restart_name="fullchem"
+elif [[ "x${sim_name}" == "xaerosol" ]]; then
+    # NOTE: we use the fullchem restart file for aerosol-only
+    start_date='20190701'
+    restart_dir='GC_14.7.0'
+    restart_name="fullchem"
 elif [[ "x${sim_name}" == "xTransportTracers" ]]; then
     start_date='20190101'
     restart_dir='GC_14.7.0'
@@ -811,7 +819,8 @@ if [[ "x${sim_extra_option}" == "xbenchmark"        ||
       "x${sim_extra_option}" == "xTOMAS40"          ||
       "x${sim_name}"         == "xPOPs"             ||
       "x${sim_name}"         == "xTransportTracers" ||
-      "x${sim_name}"         == "xtagO3"        ]]; then
+      "x${sim_name}"         == "xtagO3"           ||
+      "x${sim_name}"         == "xaerosol"      ]]; then
     RUNDIR_VARS+="RUNDIR_INITIAL_RESTART_SPECIES_REQUIRED='0'\n"
 else
     RUNDIR_VARS+="RUNDIR_INITIAL_RESTART_SPECIES_REQUIRED='1'\n"

@@ -58,23 +58,23 @@ GRID_LABELS: #PE24x144-CF
 # commented out by default. Inspect fields of collections you turn on
 # before running to ensure you will get the output you intend.
 #==============================================================================
-COLLECTIONS: @#'DefaultCollection',
+COLLECTIONS: 'DefaultCollection',
              #'AerosolMass',
              #'Aerosols',
-             @#'Budget',
-             @#'CloudConvFlux',
+             #'Budget',
+             #'CloudConvFlux',
              #'DryDep',
              #'Emissions',
              #'FV3Dynamics',
              #'GCHPctmEnvLevCenter',
              #'GCHPctmEnvLevEdge',
-             @#'ProdLoss',
+             #'ProdLoss',
              #'SpeciesConc',
-             @#'StateChm',
+             #'StateChm',
              #'StateMet',
-             @#'StateMetLevEdge',
-             @#'WetLossConv',
-             @#'WetLossLS',
+             #'StateMetLevEdge',
+             #'WetLossConv',
+             #'WetLossLS',
 ::
 #==============================================================================
 # Define collections
